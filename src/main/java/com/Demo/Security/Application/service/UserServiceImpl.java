@@ -21,14 +21,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserEntity getUserFromUserName(String userName) {
-         return userRepo.findByUsernameAndIsActive(userName, true)
+    public UserEntity getUserFromUserName(String usernameOrEmail) {
+         return userRepo.findByUsernameAndIsActive(usernameOrEmail, true)
+                 .or(() -> userRepo.findByEmailAndIsActive(usernameOrEmail, true))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = getUserFromUserName(username);
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        UserEntity user = getUserFromUserName(usernameOrEmail);
         return User
                 .builder()
                 .username(user.getUsername())
@@ -42,9 +43,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(userRepo.findByUsername(user.getUsername()).isPresent()){
             throw new RuntimeException("UserName Already taken");
         }
+        if(userRepo.findByUsername(user.getEmail()).isPresent()){
+            throw new RuntimeException("Email Already taken");
+        }
 
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(user.getUsername());
+        userEntity.setEmail(user.getEmail());
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
         userEntity.setIsActive(true);
 

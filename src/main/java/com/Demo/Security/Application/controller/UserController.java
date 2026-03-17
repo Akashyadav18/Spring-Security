@@ -29,7 +29,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered Successfully");
         }
         catch (Exception e){
-            throw new RuntimeException("Failed to create user");
+            e.printStackTrace();
+            throw  new RuntimeException("Failed to create user"+e.getMessage());
         }
     }
 
@@ -44,11 +45,11 @@ public class UserController {
 //    }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody @Valid UserEntity user){
+    public ResponseEntity<String> loginUser(@RequestBody UserEntity user){
         try{
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
+                            user.getUsername() != null ? user.getUsername() : user.getEmail(),
                             user.getPassword())
             );
             return ResponseEntity.ok("Welcome " + authentication.getName());
