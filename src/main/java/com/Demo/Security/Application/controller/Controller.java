@@ -23,9 +23,4 @@ public class Controller {
         return "hey World";
     }
 
-    @GetMapping("/csrf")
-    public CsrfToken getCsrfToken(HttpServletRequest request){
-        return (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-    }
-
 }
