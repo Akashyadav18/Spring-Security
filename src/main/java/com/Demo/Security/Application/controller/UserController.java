@@ -3,6 +3,7 @@ package com.Demo.Security.Application.controller;
 import com.Demo.Security.Application.entity.UserEntity;
 import com.Demo.Security.Application.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,17 +50,38 @@ public class UserController {
 
     // This method is suitable for frontend, u can pass data through body.
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody @Valid UserEntity user){
+    public ResponseEntity<String> loginUser(@RequestBody UserEntity user, HttpServletRequest request){
         try{
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.getUsername(),
                             user.getPassword())
             );
+            // Session banao or Security context me save karo
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            HttpSession session = request.getSession(true); // Create session if not exists
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    SecurityContextHolder.getContext()
+            );
             return ResponseEntity.ok("Welcome " + authentication.getName());
         }
         catch (Exception e){
             throw new RuntimeException("Failed to login");
+        }
+    }
+
+    //Logout - session destroy karo
+    public ResponseEntity<String> logout(HttpServletRequest request){
+        try{
+            HttpSession session = request.getSession(false);
+            if(session != null){
+                session.invalidate();
+            }
+            SecurityContextHolder.clearContext();
+            return ResponseEntity.ok("Logout successful");
+        } catch (Exception e) {
+            throw new RuntimeException("Logout Fail");
         }
     }
 
