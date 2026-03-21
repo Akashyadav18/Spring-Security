@@ -14,7 +14,8 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class UserController {
 
     @Autowired
@@ -33,6 +34,7 @@ public class UserController {
         }
     }
 
+    // This method is not suitable for frontend, it is just for testing
 //    @PostMapping("/login")
 //    public ResponseEntity<String> loginUser(Authentication authentication){
 //        try{
@@ -43,6 +45,7 @@ public class UserController {
 //        }
 //    }
 
+    // This method is suitable for frontend, u can pass data through body.
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody @Valid UserEntity user){
         try{
