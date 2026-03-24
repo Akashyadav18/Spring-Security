@@ -17,7 +17,6 @@ public class UserEntity {
     @Column
     private String username;
     @NotBlank(message = "Password is required")
-    @Size(min=6, max = 20, message = "password must be greater then equal to 6 and less than equal to 20")
     @Column
     private String password;
     @Column

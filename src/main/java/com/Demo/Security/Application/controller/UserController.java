@@ -33,7 +33,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered Successfully");
         }
         catch (Exception e){
-            throw new RuntimeException("Failed to create user");
+            e.printStackTrace();
+            throw new RuntimeException("Failed to create user"+ e.getMessage());
         }
     }
 
@@ -72,6 +73,7 @@ public class UserController {
     }
 
     //Logout - session destroy karo
+    @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request){
         try{
             HttpSession session = request.getSession(false);
